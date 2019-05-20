@@ -13,6 +13,9 @@ const int stepPin=3;
 unsigned long rxTime;
 //POSICIONES CARTESIANAS
 #include <math.h>
+#include <Stepper.h>
+//const float stepsPerRev=32;
+Stepper trigStepper (stepsPerRev,9,11,10,12); 
 double pos1x=0;
 double pos1y=0;
 bool pos1=false;
@@ -52,7 +55,25 @@ void setup() {
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
   setSensors();
-}    
+}
+void registerDistance(double distance,double anguloRad){
+    double posx=distance*cos(anguloRad);
+    double posy=distance*sin(anguloRad);
+    if(!pos1){
+      Serial.print("Registrando posicion 1");
+      pos1x=posx;
+      pos1y=posy;
+      pos1=true;
+      startTime=millis();
+    }
+    else{
+      Serial.print("Registrando posicion 2");
+      pos2x=posx;
+      pos2y=posy;
+      pos2=true;
+      endTime=millis();
+    }
+  }    
 void setSensors(){
   while(d0<20){
     d0 = readDistance(SIG0);  
@@ -64,38 +85,6 @@ void setSensors(){
   Serial.println(d0);
   Serial.println(d1);
   Serial.println("----");
-  
-  /*while(!pos2){
-    double distance;
-    Serial.print("Pa un lado");
-    // Set motor direction clockwise
-    digitalWrite(dirPin,HIGH); 
-    
-    // Spin motor half a rotation slowly
-    int indice=0;
-    int anguloRad=0;
-    for(int x = 0; x <(stepsPerRev/2); x++) {
-      distance=readDistance();
-      //if(abs(boundariesPerAngle[indice++]-distance)>20) registerDistance(distance,anguloRad);
-      digitalWrite(stepPin,HIGH); 
-      delayMicroseconds(1000); 
-      digitalWrite(stepPin,LOW); 
-      delayMicroseconds(1000);
-      anguloRad+=stepAngleRad; 
-    }
-    Serial.print(indice);
-    Serial.print("Pa'l otro");
-    digitalWrite(dirPin,LOW);
-    for(int x=0; x<(stepsPerRev/2);x++){
-      distance=readDistance();
-      //if (abs(boundariesPerAngle[indice--]-distance)>20) registerDistance(distance,anguloRad);
-      digitalWrite(stepPin,HIGH);
-      delayMicroseconds(1000);
-      digitalWrite(stepPin,LOW);
-      delayMicroseconds(1000);
-      anguloRad-=stepAngleRad;
-    }
-  }*/
 }
 
 void detect(){
@@ -177,6 +166,7 @@ void moveCanon(){
    while(true){
     Serial.println("Termino");  
    }
+   trigStepper.step(8);
 }
 void loop(){
   detect();
