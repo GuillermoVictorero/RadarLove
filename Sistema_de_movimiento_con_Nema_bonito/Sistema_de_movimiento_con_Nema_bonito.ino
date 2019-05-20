@@ -11,6 +11,9 @@ const int stepPin=3;
 unsigned long rxTime;
 //POSICIONES CARTESIANAS
 #include <math.h>
+#include <Stepper.h>
+//const float stepsPerRev=32;
+Stepper trigStepper (stepsPerRev,9,11,10,12); 
 double pos1x=0;
 double pos1y=0;
 bool pos1=false;
@@ -32,7 +35,7 @@ double stepAngleRad=1.8*2*PI;
 //DEV
 unsigned long tiempoLectura;
 
-float readDistance(SIG){
+float readDistance(int SIG){
   pinMode(SIG, OUTPUT);
     //Genarate a pulse 20uS pulse
     digitalWrite(SIG, HIGH);
@@ -45,19 +48,20 @@ float readDistance(SIG){
     return distance;
 }
 void setBoundaries(){
-  int indice=0;
+  /*int indice=0;
   for(int x=0; x<stepsPerRev/2;x++){
     boundariesPerAngle[indice++]=readDistance();
     digitalWrite(stepPin,HIGH);
     delayMicroseconds(1000);
     digitalWrite(stepPin,LOW);
     delayMicroseconds(1000);
-  }
+  }*/
 }
 void setup() {
   Serial.begin(9600);
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
+  trigStepper.setSpeed(900);
   unsigned long lecturaBegin=millis();
   setBoundaries();
   unsigned long lecturaEnd=millis();
@@ -122,22 +126,22 @@ void setSensors(){
 
 void detect(){
   do{
-    d0 = readDistance(SIG0);
-    d1 = readDistance(SIG1);    
-  }while(d0-p0 > 10 || d1-p1 > 10)
+    p0 = readDistance(SIG0);
+    p1 = readDistance(SIG1);    
+  }while(d0-p0 > 10 || d1-p1 > 10);
   startTime=millis();
   if (d0-p0 > 10){
     eastward = true;
     do{
-      d1 = readDistance(SIG1);    
-    }while(d1-p1 > 10)
+      p1 = readDistance(SIG1);    
+    }while(d1-p1 > 10);
     endTime=millis();
   }
   else{
     eastward = false;
     do{
-      d0 = readDistance(SIG0);    
-    }while(d0-p0 > 10)
+      p0 = readDistance(SIG0);    
+    }while(d0-p0 > 10);
     endTime=millis();
   }  
 }
@@ -163,6 +167,7 @@ void calculations(){
 }
 void moveCanon(){
    Serial.println("TERMINO");
+   trigStepper.step(8);
 }
 void loop(){
   setSensors();
