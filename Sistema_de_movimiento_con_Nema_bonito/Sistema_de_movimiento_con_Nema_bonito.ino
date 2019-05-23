@@ -76,10 +76,13 @@ void registerDistance(double distance,double anguloRad){
   }    
 void setSensors(){
   while(d0<20){
-    d0 = readDistance(SIG0);  
+    d0 = readDistance(SIG0);
+    delay(500);  
   }
+  delay(500);
   while(d1<20){
-    d1 = readDistance(SIG1);  
+    d1 = readDistance(SIG1);
+    delay(500);  
   }
   Serial.println("----");
   Serial.println(d0);
@@ -89,9 +92,9 @@ void setSensors(){
 
 void detect(){
   do{
-    delayMicroseconds(20);
-    //p0 = readDistance(SIG0);
-    delayMicroseconds(20);
+    delayMicroseconds(500);
+    p0 = readDistance(SIG0);
+    delayMicroseconds(500);
     p1 = readDistance(SIG1);
    
     if (p0<3){
