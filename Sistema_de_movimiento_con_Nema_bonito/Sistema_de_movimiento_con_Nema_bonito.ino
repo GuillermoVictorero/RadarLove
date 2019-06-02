@@ -2,6 +2,7 @@
 
 //MOTOR va aquí
 const int stepsPerRev=200;
+const int stepsPerRevTrig=32;
 double boundariesPerAngle[stepsPerRev/2];
 //DRIVER MOTOR va aqui
 const int dirPin=2;
@@ -15,7 +16,7 @@ unsigned long rxTime;
 #include <math.h>
 #include <Stepper.h>
 //const float stepsPerRev=32;
-Stepper trigStepper (stepsPerRev,9,11,10,12); 
+Stepper trigStepper (stepsPerRevTrig,9,11,10,12); 
 double pos1x=0;
 double pos1y=0;
 bool pos1=false;
@@ -46,12 +47,13 @@ float readDistance(int SIG){
     digitalWrite(SIG, LOW);
     //set SIG as INPUT,start to read value from the module
     pinMode(SIG, INPUT);
-    rxTime = pulseIn(SIG, HIGH,5000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
+    rxTime = pulseIn(SIG, HIGH);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
     double distance = (double)rxTime * 34 / 2000.0; //convert the time to distance
     return distance;
 }
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  trigStepper.setSpeed(900);
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
   setSensors();
@@ -75,11 +77,14 @@ void registerDistance(double distance,double anguloRad){
     }
   }    
 void setSensors(){
-  while(d0<20){
-    d0 = readDistance(SIG0);  
-  }
+  /*while(d0<20){
+    d0 = readDistance(SIG0);
+    delay(500);  
+  }*/
+  delay(500);
   while(d1<20){
-    d1 = readDistance(SIG1);  
+    d1 = readDistance(SIG1);
+    delay(500);  
   }
   Serial.println("----");
   Serial.println(d0);
@@ -89,28 +94,28 @@ void setSensors(){
 
 void detect(){
   do{
-    delayMicroseconds(20);
+    delayMicroseconds(500);
     //p0 = readDistance(SIG0);
-    delayMicroseconds(20);
+    delayMicroseconds(500);
     p1 = readDistance(SIG1);
    
-    if (p0<3){
+    if(p0<6){
       p0=d0;       
     }
-    else{
-      if(p1<3){
-        p1=d1;
-      }
+    if(p1<6){
+      p1=d1;
     }
     Serial.println("----PO-P1");
     Serial.println(p0);
     Serial.println(p1);
     Serial.println("----");
-  }while(true);//d0-p0 > 20 || d1-p1 > 20
+  }while(d0-p0<20 && d1-p1<20);//d0-p0 > 20 || d1-p1 > 20
+  delayMicroseconds(500);
   startTime=millis();
   if (d0-p0 > 20){
     eastward = true;
     do{
+      delayMicroseconds(500);
       p1 = readDistance(SIG1);    
     }while(d1-p1 > 20);
     endTime=millis();
@@ -118,6 +123,7 @@ void detect(){
   else{
     eastward = false;
     do{
+      delayMicroseconds(500);
       p0 = readDistance(SIG0);    
     }while(d0-p0 > 20);
     endTime=millis();
@@ -163,10 +169,11 @@ void moveCanon(){
       delayMicroseconds(1000);
     }
    }
+   trigStepper.step(960);    
+   trigStepper.step(-960);
    while(true){
     Serial.println("Termino");  
    }
-   trigStepper.step(8);
 }
 void loop(){
   detect();
