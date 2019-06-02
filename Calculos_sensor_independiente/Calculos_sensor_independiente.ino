@@ -23,9 +23,10 @@ void calculations(){
     double desplY=pos2y-pos1y;
     double velocidadX=desplX/elapsedTime;
     double velocidadY=desplY/elapsedTime;
-    double posFinalX=pos2x+velocidadX*1;
-    double posFinalY=pos2y+velocidadY*1;//ojo con el tiempo requerido
-    angDestino=PI/2+-(atan(posFinalY/posFinalX));      
+    double posFinalX=pos2x+velocidadX*2;
+    double posFinalY=pos2y+velocidadY*2;//ojo con el tiempo requerido
+    if(pos1y>pos2y) angDestino =PI/2+(atan(posFinalY/posFinalX));
+    else angDestino=PI/2+-(atan(posFinalY/posFinalX));      
     Serial.println(angDestino);
   }
   else{
@@ -33,9 +34,10 @@ void calculations(){
     double desplY=pos1y-pos2y;
     double velocidadX=desplX/elapsedTime;
     double velocidadY=desplY/elapsedTime;
-    double posFinalX=pos1x+velocidadX*1;
-    double posFinalY=pos1y+velocidadY*1;
-    angDestino=-(atan(posFinalY/posFinalX));
+    double posFinalX=pos1x+velocidadX*2;
+    double posFinalY=pos1y+velocidadY*2;
+    if(pos1y>pos2y) angDestino=atan(posFinalY/posFinalX);
+    else angDestino=-(atan(posFinalY/posFinalX));
     Serial.println(angDestino);
   }
 }
