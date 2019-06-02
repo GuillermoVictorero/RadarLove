@@ -3,17 +3,16 @@ double pos1x=horDist/2;
 double pos2x=-horDist/2;
 double pos1y;
 double pos2y;
-double p0=5;//valores aleatorios por ahora
-double p1=50;//valores aleatorios por ahora
-double elapsedTime=0.15;
-bool eastward=false;//valores aleatorios por ahora
+double p0=100;//valores aleatorios por ahora
+double p1=3;//valores aleatorios por ahora
+double elapsedTime=1;
+bool eastward=true;//valores aleatorios por ahora
 
 
 double angDestino;//conexion a movimiento motor
 
 void setup() {
   Serial.begin(9600);
-  
 }
 void calculations(){
   pos1y=p0;
@@ -25,7 +24,7 @@ void calculations(){
     double velocidadY=desplY/elapsedTime;
     double posFinalX=pos2x+velocidadX*2;
     double posFinalY=pos2y+velocidadY*2;//ojo con el tiempo requerido
-    angDestino=PI-abs(atan(posFinalY/posFinalX));      
+    angDestino=PI-abs(atan((posFinalY/posFinalX)));      
     Serial.println(angDestino);
   }
   else{
