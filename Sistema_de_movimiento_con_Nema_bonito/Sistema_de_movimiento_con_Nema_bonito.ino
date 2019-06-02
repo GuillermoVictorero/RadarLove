@@ -117,7 +117,7 @@ void detect(){
     do{
       delayMicroseconds(500);
       p1 = readDistance(SIG1);    
-    }while(d1-p1 > 20);
+    }while(d1-p1 < 20);
     endTime=millis();
   }
   else{
@@ -125,7 +125,7 @@ void detect(){
     do{
       delayMicroseconds(500);
       p0 = readDistance(SIG0);    
-    }while(d0-p0 > 20);
+    }while(d0-p0 < 20);
     endTime=millis();
   }  
 }
