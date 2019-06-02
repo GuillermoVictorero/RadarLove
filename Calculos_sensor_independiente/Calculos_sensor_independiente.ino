@@ -3,10 +3,10 @@ double pos1x=horDist/2;
 double pos2x=-horDist/2;
 double pos1y;
 double pos2y;
-double p0=3;//valores aleatorios por ahora
-double p1=5;//valores aleatorios por ahora
+double p0=5;//valores aleatorios por ahora
+double p1=50;//valores aleatorios por ahora
 double elapsedTime=0.15;
-bool eastward=true;//valores aleatorios por ahora
+bool eastward=false;//valores aleatorios por ahora
 
 
 double angDestino;//conexion a movimiento motor
@@ -25,8 +25,7 @@ void calculations(){
     double velocidadY=desplY/elapsedTime;
     double posFinalX=pos2x+velocidadX*2;
     double posFinalY=pos2y+velocidadY*2;//ojo con el tiempo requerido
-    if(pos1y>pos2y) angDestino =PI/2+(atan(posFinalY/posFinalX));
-    else angDestino=PI/2+-(atan(posFinalY/posFinalX));      
+    angDestino=PI-abs(atan(posFinalY/posFinalX));      
     Serial.println(angDestino);
   }
   else{
@@ -36,8 +35,7 @@ void calculations(){
     double velocidadY=desplY/elapsedTime;
     double posFinalX=pos1x+velocidadX*2;
     double posFinalY=pos1y+velocidadY*2;
-    if(pos1y>pos2y) angDestino=atan(posFinalY/posFinalX);
-    else angDestino=-(atan(posFinalY/posFinalX));
+    angDestino=abs(atan(posFinalY/posFinalX));
     Serial.println(angDestino);
   }
 }
