@@ -22,7 +22,7 @@ const double angMotor= (PI/2); //se asume que la posición del motor es de 90° 
 
 //VARIABLES DEL SERVO TRIGGER
 #include <Servo.h>
-#define servoPin 9 // servo is to be attached on pin 9
+#define servoPin 32 // servo is to be attached on pin 32
 Servo myservo;  // create servo object to control a servo
 // twelve servo objects can be created on most boards
 
@@ -31,6 +31,7 @@ const double tiempoDisparoTrigger=1.0;
 
 void setup() {
   Serial.begin(9600);
+  Serial.print("Setup");
   //SETUP NEMA
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
@@ -44,6 +45,7 @@ void setup() {
 void calculations(){
   pos1y=p0;
   pos2y=p1;
+  Serial.println("Calculating");
   if(eastward){
     double desplX=-horDist;
     double desplY=pos2y-pos1y;

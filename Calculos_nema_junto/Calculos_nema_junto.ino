@@ -23,6 +23,7 @@ const double angMotor= (PI/2); //se asume que la posición del motor es de 90° 
 
 void setup() {
   Serial.begin(9600);
+  Serial.println("Termino");
   //SETUP NEMA
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
@@ -69,7 +70,6 @@ void moverAngulo (){
 void loop() {
   calculations();
   moverAngulo();
-  disparo();
     while (true){
     Serial.println("Termino");
     delay(10000);
