@@ -1,14 +1,23 @@
+//VARIABLES DE LOS SENSORES
+#define SIG0 A0
+#define SIG1 A1
+#include <Wire.h>
+unsigned long rxTime;
+unsigned long endTime;
+unsigned long startTime;
 
 //VARIABLES DE LOS CALCULOS
 const double horDist=7.5;
 double pos1x=horDist/2;
 double pos2x=-horDist/2;
+double d0;
+double d1;
 double pos1y;
 double pos2y;
-double p0=100;//valores aleatorios por ahora
-double p1=3;//valores aleatorios por ahora
+double p0=30;//valores aleatorios por ahora
+double p1=50;//valores aleatorios por ahora
 double elapsedTime=1;
-bool eastward=true;//valores aleatorios por ahora
+bool westward=false;//valores aleatorios por ahora
 
 //NEXO CALCULOS-NEMA
 double angDestino;//conexion a movimiento motor
@@ -42,11 +51,77 @@ void setup() {
   delay(1000);
 
 }
+float readDistance(int SIG){
+    pinMode(SIG, OUTPUT);
+    //Genarate a pulse 20uS pulse
+    digitalWrite(SIG, HIGH);
+    delayMicroseconds(20);
+    digitalWrite(SIG, LOW);
+    //set SIG as INPUT,start to read value from the module
+    pinMode(SIG, INPUT);
+    rxTime = pulseIn(SIG, HIGH,100000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
+    double distance = (double)rxTime * 34 / 2000.0; //convert the time to distance
+    return distance;
+}
+
+void setSensors(){
+  while(d0 < 20){
+    d0 = readDistance(SIG0);
+    delay(500);
+    Serial.println("----d0");
+    Serial.println(d0);
+  }
+  while(d1 < 20){
+    d1 = readDistance(SIG1);
+    delay(500);
+    Serial.println("----d1");
+    Serial.println(d1);
+  }
+}
+
+void detect(){
+  do{
+    delayMicroseconds(5000);
+    p0 = readDistance(SIG0);
+    delayMicroseconds(5000);
+    p1 = readDistance(SIG1);
+   
+    if (p0<20){
+      p0=d0;       
+    }
+    else{
+      if(p1<20){
+        p1=d1;
+      }
+    }
+    Serial.println("----PO-P1");
+    Serial.println(p0);
+    Serial.println(p1);
+    Serial.println("----");
+  }while(abs(d0-p0) < 20 || abs(d1-p1) < 20);
+  startTime=millis();
+  if (d0-p0 > 20){
+    westward = false;
+    do{
+      p1 = readDistance(SIG1);    
+    }while(d1-p1 > 20);
+    endTime=millis();
+  }
+  else{
+    westward = true;
+    do{
+      p0 = readDistance(SIG0);    
+    }while(d0-p0 > 20);
+    endTime=millis();
+  }  
+  elapsedTime = endTime - startTime;
+}
+
 void calculations(){
   pos1y=p0;
   pos2y=p1;
   Serial.println("Calculating");
-  if(eastward){
+  if(westward){
     double desplX=-horDist;
     double desplY=pos2y-pos1y;
     double velocidadX=desplX/elapsedTime;
@@ -70,6 +145,7 @@ void calculations(){
 
 void moverAngulo (){
   double angMover=angMotor-angDestino;
+  Serial.print(angMover);
   int cantPasos=(abs(angMover)/radPorPaso)+1; //comprobado funciona bien
   if(angMover>0) digitalWrite(dirPin,LOW);
   else digitalWrite(dirPin,HIGH);
@@ -88,6 +164,8 @@ void disparo(){
   }
 }
 void loop() {
+  setSensors();
+  detect();
   calculations();
   moverAngulo();
   disparo();
