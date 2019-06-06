@@ -1,6 +1,6 @@
 
 //VARIABLES DE LOS CALCULOS
-const double horDist=15;
+const double horDist=7.5;
 double pos1x=horDist/2;
 double pos2x=-horDist/2;
 double pos1y;
@@ -28,7 +28,6 @@ void setup() {
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
   digitalWrite(dirPin,LOW);
-
 }
 void calculations(){
   pos1y=p0;
@@ -51,6 +50,7 @@ void calculations(){
     double posFinalX=pos1x+velocidadX*2;
     double posFinalY=pos1y+velocidadY*2;
     angDestino=abs(atan(posFinalY/posFinalX));
+    Serial.println(angDestino);
   }
 }
 
