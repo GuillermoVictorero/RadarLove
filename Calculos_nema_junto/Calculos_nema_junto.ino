@@ -27,7 +27,6 @@ void setup() {
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
   digitalWrite(dirPin,LOW);
-
 }
 void calculations(){
   pos1y=p0;
