@@ -70,7 +70,6 @@ void moverAngulo (){
 void loop() {
   calculations();
   moverAngulo();
-  disparo();
     while (true){
     Serial.println("Termino");
     delay(10000);
