@@ -101,20 +101,21 @@ void detect(){
   }while(abs(d0-p0) < 20 || abs(d1-p1) < 20);
   startTime=millis();
   if (d0-p0 > 20){
-    westward = false;
+    westward = true;
     do{
       p1 = readDistance(SIG1);    
     }while(d1-p1 > 20);
     endTime=millis();
   }
   else{
-    westward = true;
+    westward = false;
     do{
       p0 = readDistance(SIG0);    
     }while(d0-p0 > 20);
     endTime=millis();
   }  
-  elapsedTime = endTime - startTime;
+  elapsedTime = (endTime - startTime)/1000;
+  Serial.println(elapsedTime);
 }
 
 void calculations(){
