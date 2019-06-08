@@ -1,6 +1,6 @@
 //VARIABLES DE LOS SENSORES
-#define SIG0 A0
-#define SIG1 A1
+#define SIG0 A2
+#define SIG1 A3
 #include <Wire.h>
 unsigned long rxTime;
 unsigned long endTime;
@@ -59,21 +59,22 @@ float readDistance(int SIG){
     digitalWrite(SIG, LOW);
     //set SIG as INPUT,start to read value from the module
     pinMode(SIG, INPUT);
-    rxTime = pulseIn(SIG, HIGH,100000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
+    rxTime = pulseIn(SIG, HIGH,42000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
     double distance = (double)rxTime * 34 / 2000.0; //convert the time to distance
     return distance;
 }
 
 void setSensors(){
-  while(d0 < 20){
+  while(d0 < 120){
     d0 = readDistance(SIG0);
-    delay(500);
+    delay(50);
     Serial.println("----d0");
     Serial.println(d0);
   }
-  while(d1 < 20){
+  delayMicroseconds(42000);
+  while(d1 < 120){
     d1 = readDistance(SIG1);
-    delay(500);
+    delay(50);
     Serial.println("----d1");
     Serial.println(d1);
   }
@@ -81,37 +82,39 @@ void setSensors(){
 
 void detect(){
   do{
-    delayMicroseconds(5000);
+    delayMicroseconds(42000);
     p0 = readDistance(SIG0);
-    delayMicroseconds(5000);
+    delayMicroseconds(42000);
     p1 = readDistance(SIG1);
    
     if (p0<20){
       p0=d0;       
     }
-    else{
-      if(p1<20){
+    if(p1<20){
         p1=d1;
-      }
     }
     Serial.println("----PO-P1");
     Serial.println(p0);
     Serial.println(p1);
     Serial.println("----");
-  }while(abs(d0-p0) < 20 || abs(d1-p1) < 20);
+  }while(abs(d0-p0) < 50 && abs(d1-p1) < 50);  //abs(d0-p0) < 50 && abs(d1-p1) < 50
   startTime=millis();
-  if (d0-p0 > 20){
+  if (d0-p0 > 50){
     westward = true;
     do{
-      p1 = readDistance(SIG1);    
-    }while(d1-p1 > 20);
+      p1 = readDistance(SIG1);
+      Serial.println("P1 OTRO");
+      Serial.println(p1);    
+    }while(d1-p1 < 50);
     endTime=millis();
   }
   else{
     westward = false;
     do{
-      p0 = readDistance(SIG0);    
-    }while(d0-p0 > 20);
+      p0 = readDistance(SIG0);
+      Serial.println("P0 OTRO");
+      Serial.println(p0);    
+    }while(d0-p0 < 50);
     endTime=millis();
   }  
   elapsedTime = (endTime - startTime)/1000;
@@ -158,11 +161,12 @@ void moverAngulo (){
   }
 }
 void disparo(){
-    for (pos = 30; pos <= 120; pos += 1) { // goes from 0 degrees to 180 degrees
+    for (pos = 30; pos <= 80; pos += 1) { // goes from 0 degrees to 180 degrees
     // in steps of 1 degree
     myservo.write(pos);              // tell servo to go to position in variable 'pos'
     delay(5);                       // waits 5ms for the servo to reach the position
   }
+  myservo.write(30);
 }
 void loop() {
   setSensors();
