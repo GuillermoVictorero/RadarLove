@@ -65,14 +65,14 @@ float readDistance(int SIG){
 }
 
 void setSensors(){
-  while(d0 < 120){
+  while(d0 < 50){
     d0 = readDistance(SIG0);
     delay(50);
     Serial.println("----d0");
     Serial.println(d0);
   }
   delayMicroseconds(42000);
-  while(d1 < 120){
+  while(d1 < 50){
     d1 = readDistance(SIG1);
     delay(50);
     Serial.println("----d1");
@@ -97,15 +97,15 @@ void detect(){
     Serial.println(p0);
     Serial.println(p1);
     Serial.println("----");
-  }while(abs(d0-p0) < 50 && abs(d1-p1) < 50);  //abs(d0-p0) < 50 && abs(d1-p1) < 50
+  }while(abs(d0-p0) < 40 && abs(d1-p1) < 40);  //abs(d0-p0) < 50 && abs(d1-p1) < 50
   startTime=millis();
-  if (d0-p0 > 50){
+  if (d0-p0 > 40){
     westward = true;
     do{
       p1 = readDistance(SIG1);
       Serial.println("P1 OTRO");
       Serial.println(p1);    
-    }while(d1-p1 < 50);
+    }while(d1-p1 < 40 || p1==0);
     endTime=millis();
   }
   else{
@@ -114,7 +114,7 @@ void detect(){
       p0 = readDistance(SIG0);
       Serial.println("P0 OTRO");
       Serial.println(p0);    
-    }while(d0-p0 < 50);
+    }while(d0-p0 < 40 || p0==0);
     endTime=millis();
   }  
   elapsedTime = (endTime - startTime)/1000;
