@@ -37,7 +37,7 @@ Servo myservo;  // create servo object to control a servo
 // twelve servo objects can be created on most boards
 
 int pos = 0;    // variable to store the servo position
-const double tiempoDisparoTrigger=1.0;
+const double tiempoDisparoTrigger=0.5;
 
 void setup() {
   //SETUP DEBUGGING
@@ -101,15 +101,15 @@ void detect(){
     Serial.println(p0);
     Serial.println(p1);
     Serial.println("----");
-  }while(abs(d0-p0) < 40 && abs(d1-p1) < 40);  //abs(d0-p0) < 40 && abs(d1-p1) < 40
+  }while(abs(d0-p0) < 20 && abs(d1-p1) < 20);  //abs(d0-p0) < 40 && abs(d1-p1) < 40
   startTime=millis();
-  if (d0-p0 > 40){
+  if (d0-p0 > 20){
     westward = true;
     do{
       p1 = readDistance(SIG1);
       Serial.println("P1 OTRO");
       Serial.println(p1);    
-    }while(d1-p1 < 40 || p1==0);
+    }while(d1-p1 < 20 || p1==0);
     endTime=millis();
   }
   else{
@@ -118,7 +118,7 @@ void detect(){
       p0 = readDistance(SIG0);
       Serial.println("P0 OTRO");
       Serial.println(p0);    
-    }while(d0-p0 < 40 || p0==0);
+    }while(d0-p0 < 20 || p0==0);
     endTime=millis();
   }
   Serial.println(startTime);
