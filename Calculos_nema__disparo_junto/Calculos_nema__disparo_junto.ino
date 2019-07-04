@@ -1,6 +1,6 @@
 //VARIABLES DE LOS SENSORES
-#define SIG0 A2
 #define SIG1 A3
+#define SIG0 A2
 #include <Wire.h>
 unsigned long rxTime;
 unsigned long endTime;
@@ -14,9 +14,9 @@ double d0;
 double d1;
 double pos1y;
 double pos2y;
-double p0=30;//valores aleatorios por ahora
-double p1=50;//valores aleatorios por ahora
-double elapsedTime=1;
+double p0;//valores aleatorios por ahora
+double p1;//valores aleatorios por ahora
+double elapsedTime=0.075;
 bool westward=false;//valores aleatorios por ahora
 
 //NEXO CALCULOS-NEMA
@@ -25,6 +25,7 @@ double angDestino;//conexion a movimiento motor
 //VARIABLES DEL NEMA
 #define stepPin 3
 #define dirPin 2
+#define enablePin 24
 const double tiempoRotMotor=0.157079633; //obtenido experimentalmente, revisar informe motor
 const double radPorPaso=0.01*PI; 
 const double angMotor= (PI/2); //se asume que la posición del motor es de 90° con respecto a un plano
@@ -39,11 +40,13 @@ int pos = 0;    // variable to store the servo position
 const double tiempoDisparoTrigger=1.0;
 
 void setup() {
+  //SETUP DEBUGGING
   Serial.begin(9600);
   Serial.print("Setup");
   //SETUP NEMA
   pinMode(stepPin,OUTPUT);
   pinMode(dirPin,OUTPUT);
+  pinMode(enablePin,OUTPUT);
   digitalWrite(dirPin,LOW);
   //SETUP SERVO
   myservo.write(30);
@@ -59,12 +62,13 @@ float readDistance(int SIG){
     digitalWrite(SIG, LOW);
     //set SIG as INPUT,start to read value from the module
     pinMode(SIG, INPUT);
-    rxTime = pulseIn(SIG, HIGH,42000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
+    rxTime = pulseIn(SIG, HIGH,50000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
     double distance = (double)rxTime * 34 / 2000.0; //convert the time to distance
     return distance;
 }
 
 void setSensors(){
+  digitalWrite(enablePin,HIGH);
   while(d0 < 50){
     d0 = readDistance(SIG0);
     delay(50);
@@ -97,7 +101,7 @@ void detect(){
     Serial.println(p0);
     Serial.println(p1);
     Serial.println("----");
-  }while(abs(d0-p0) < 40 && abs(d1-p1) < 40);  //abs(d0-p0) < 50 && abs(d1-p1) < 50
+  }while(abs(d0-p0) < 40 && abs(d1-p1) < 40);  //abs(d0-p0) < 40 && abs(d1-p1) < 40
   startTime=millis();
   if (d0-p0 > 40){
     westward = true;
@@ -116,9 +120,12 @@ void detect(){
       Serial.println(p0);    
     }while(d0-p0 < 40 || p0==0);
     endTime=millis();
-  }  
-  elapsedTime = (endTime - startTime)/1000;
-  Serial.println(elapsedTime);
+  }
+  Serial.println(startTime);
+  Serial.println(endTime);  
+  Serial.println((double)(endTime-startTime)/1000.0);
+  elapsedTime = (double)((endTime - startTime)/1000.0);
+  //Serial.println(elapsedTime);
 }
 
 void calculations(){
@@ -148,6 +155,7 @@ void calculations(){
 }
 
 void moverAngulo (){
+  digitalWrite(enablePin,LOW);
   double angMover=angMotor-angDestino;
   Serial.print(angMover);
   int cantPasos=(abs(angMover)/radPorPaso)+1; //comprobado funciona bien
@@ -168,6 +176,7 @@ void disparo(){
   }
   myservo.write(30);
 }
+
 void loop() {
   setSensors();
   detect();
