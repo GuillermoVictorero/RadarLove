@@ -41,6 +41,7 @@ double angDestino;//conexion a movimiento motor
 #define stepPin 3
 #define dirPin 2
 #define enablePin 24
+int cantPasos;
 const double tiempoRotMotor=0.157079633; //obtenido experimentalmente, revisar informe motor
 const double radPorPaso=0.01*PI; 
 const double angMotor= (PI/2); //se asume que la posición del motor es de 90° con respecto a un plano
@@ -90,15 +91,15 @@ void manualCalibration(){
     if(lecturaBotonIzq==HIGH){
       digitalWrite(dirPin,HIGH);
       digitalWrite(stepPin,HIGH);
-      delayMicroseconds(15000);
+      delayMicroseconds(20000);
       digitalWrite(stepPin,LOW);
-      delayMicroseconds(15000);
+      delayMicroseconds(20000);
     }else if (lecturaBotonDer==HIGH){
       digitalWrite(dirPin,LOW);
       digitalWrite(stepPin,HIGH);
-      delayMicroseconds(15000);
+      delayMicroseconds(20000);
       digitalWrite(stepPin,LOW);
-      delayMicroseconds(15000);
+      delayMicroseconds(20000);
     } 
     lecturaBotonGo=digitalRead(pinBotonGo);
   }  
@@ -119,6 +120,8 @@ float readDistance(int SIG){
 
 void setSensors(){
   digitalWrite(enablePin,HIGH);
+  d0=0;
+  d1=0;
   while(d0 < 50){
     d0 = readDistance(SIG0);
     delay(50);
@@ -208,17 +211,9 @@ void moverAngulo (){
   digitalWrite(enablePin,LOW);
   double angMover=angMotor-angDestino;
   Serial.print(angMover);
-  int cantPasos=(abs(angMover)/radPorPaso)+1; //comprobado funciona bien
+  cantPasos=(abs(angMover)/radPorPaso)+1; //comprobado funciona bien
   if(angMover>0) digitalWrite(dirPin,LOW);
   else digitalWrite(dirPin,HIGH);
-  for(int i=0;i<(cantPasos);i++){
-    digitalWrite(stepPin,HIGH);
-    delayMicroseconds(2000);
-    digitalWrite(stepPin,LOW);
-    delayMicroseconds(2000);
-  }
-  if(digitalRead(dirPin)==HIGH) digitalWrite(dirPin,LOW);
-  else digitalWrite(dirPin,LOW);
   for(int i=0;i<(cantPasos);i++){
     digitalWrite(stepPin,HIGH);
     delayMicroseconds(2000);
@@ -233,9 +228,21 @@ void disparo(){
     delay(5);                       // waits 5ms for the servo to reach the position
   }
   myservo.write(30);
+  delay(1000);//da tiempo para disparar
+}
+void devolverAngulo(){
+  if(digitalRead(dirPin)==HIGH) digitalWrite(dirPin,LOW);
+  else digitalWrite(dirPin,HIGH);
+  for(int i=0;i<(cantPasos);i++){
+    digitalWrite(stepPin,HIGH);
+    delayMicroseconds(2000);
+    digitalWrite(stepPin,LOW);
+    delayMicroseconds(2000);
+  }
 }
 
 void loop() {
+  setup();//fix, sin esto no funciona desde el primer reinicio
   startLeds();
   manualCalibration();
   setSensors();
@@ -243,7 +250,7 @@ void loop() {
   calculations();
   moverAngulo();
   disparo();
-  Serial.println("Termino");
+  devolverAngulo();
   
   lecturaBotonGo=LOW;
   while (lecturaBotonGo==LOW){  
