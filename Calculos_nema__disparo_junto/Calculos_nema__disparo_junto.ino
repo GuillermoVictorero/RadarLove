@@ -1,3 +1,15 @@
+//VARIABLES DEL MANDO (LEDS Y BOTONES)
+#define pinLed1 8
+#define pinLed2 9
+#define pinLed3 10
+
+#define pinBotonIzq 11
+#define pinBotonDer 12
+#define pinBotonGo 13
+int lecturaBotonIzq;
+int lecturaBotonDer;
+int lecturaBotonGo;
+
 //VARIABLES DE LOS SENSORES
 #define SIG1 A3
 #define SIG0 A2
@@ -12,13 +24,14 @@ unsigned long startTime;
 const double horDist=9.5;
 double pos1x=horDist/2;
 double pos2x=-horDist/2;
-double d0;
-double d1;
+double d0;//DISTANCIA DE SENSOR 0
+double d1;//DISTANCIA DE SENSOR 1
 double pos1y;
 double pos2y;
-double p0;//valores aleatorios por ahora
-double p1;//valores aleatorios por ahora
-double elapsedTime=0.075;
+double p0;//POSICION GUARDADA
+double p1;//POSICION GUARDADA
+double elapsedTime;
+const double tiempoDisparoTrigger=0.5;
 bool westward=false;//valores aleatorios por ahora
 
 //NEXO CALCULOS-NEMA
@@ -39,9 +52,16 @@ Servo myservo;  // create servo object to control a servo
 // twelve servo objects can be created on most boards
 
 int pos = 0;    // variable to store the servo position
-const double tiempoDisparoTrigger=0.5;
 
 void setup() {
+  //SETUP MANDO (LEDS Y BOTONES)
+  pinMode(pinLed1,OUTPUT);
+  pinMode(pinLed2,OUTPUT);
+  pinMode(pinLed3,OUTPUT);
+
+  pinMode(pinBotonIzq,INPUT);
+  pinMode(pinBotonDer,INPUT);
+  pinMode(pinBotonGo,INPUT);
   //SETUP DEBUGGING
   Serial.begin(9600);
   Serial.print("Setup");
@@ -55,6 +75,34 @@ void setup() {
   myservo.attach(servoPin);
   delay(1000);
 
+}
+void startLeds(){
+  digitalWrite(pinLed1,HIGH);
+  digitalWrite(pinLed2,LOW);
+  digitalWrite(pinLed3,LOW);
+}
+void manualCalibration(){
+  digitalWrite(enablePin,LOW);
+  lecturaBotonGo=LOW;
+  while(lecturaBotonGo==LOW){
+    lecturaBotonIzq=digitalRead(pinBotonIzq);
+    lecturaBotonDer=digitalRead(pinBotonDer);
+    if(lecturaBotonIzq==HIGH){
+      digitalWrite(dirPin,HIGH);
+      digitalWrite(stepPin,HIGH);
+      delayMicroseconds(15000);
+      digitalWrite(stepPin,LOW);
+      delayMicroseconds(15000);
+    }else if (lecturaBotonDer==HIGH){
+      digitalWrite(dirPin,LOW);
+      digitalWrite(stepPin,HIGH);
+      delayMicroseconds(15000);
+      digitalWrite(stepPin,LOW);
+      delayMicroseconds(15000);
+    } 
+    lecturaBotonGo=digitalRead(pinBotonGo);
+  }  
+  digitalWrite(pinLed2,HIGH);
 }
 float readDistance(int SIG){
     pinMode(SIG, OUTPUT);
@@ -84,6 +132,7 @@ void setSensors(){
     Serial.println("----d1");
     Serial.println(d1);
   }
+  digitalWrite(pinLed3,HIGH);
 }
 
 void detect(){
@@ -127,7 +176,6 @@ void detect(){
   Serial.println(endTime);  
   Serial.println((double)(endTime-startTime)/1000.0);
   elapsedTime = (double)((endTime - startTime)/1000.0);
-  //Serial.println(elapsedTime);
 }
 
 void calculations(){
@@ -188,13 +236,17 @@ void disparo(){
 }
 
 void loop() {
+  startLeds();
+  manualCalibration();
   setSensors();
   detect();
   calculations();
   moverAngulo();
   disparo();
-    while (true){
-    Serial.println("Termino");
-    delay(10000);
+  Serial.println("Termino");
+  
+  lecturaBotonGo=LOW;
+  while (lecturaBotonGo==LOW){  
+    lecturaBotonGo=digitalRead(pinBotonGo);
   }
 }
