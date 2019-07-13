@@ -6,8 +6,10 @@ unsigned long rxTime;
 unsigned long endTime;
 unsigned long startTime;
 
+
+
 //VARIABLES DE LOS CALCULOS
-const double horDist=7.5;
+const double horDist=9.5;
 double pos1x=horDist/2;
 double pos2x=-horDist/2;
 double d0;
@@ -62,8 +64,8 @@ float readDistance(int SIG){
     digitalWrite(SIG, LOW);
     //set SIG as INPUT,start to read value from the module
     pinMode(SIG, INPUT);
-    rxTime = pulseIn(SIG, HIGH,50000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
-    double distance = (double)rxTime * 34 / 2000.0; //convert the time to distance
+    rxTime = pulseIn(SIG, HIGH,100000);//waits for the pin SIG to go HIGH, starts timing, then waits for the pin to go LOW and stops timing
+    float distance = (float)rxTime * 34 / 2000.0; //convert the time to distance
     return distance;
 }
 
@@ -75,7 +77,7 @@ void setSensors(){
     Serial.println("----d0");
     Serial.println(d0);
   }
-  delayMicroseconds(42000);
+  delayMicroseconds(49000);//42000
   while(d1 < 50){
     d1 = readDistance(SIG1);
     delay(50);
@@ -86,9 +88,9 @@ void setSensors(){
 
 void detect(){
   do{
-    delayMicroseconds(42000);
+    delayMicroseconds(42000);//42000
     p0 = readDistance(SIG0);
-    delayMicroseconds(42000);
+    delayMicroseconds(42000);//42000
     p1 = readDistance(SIG1);
    
     if (p0<20){
@@ -162,10 +164,18 @@ void moverAngulo (){
   if(angMover>0) digitalWrite(dirPin,LOW);
   else digitalWrite(dirPin,HIGH);
   for(int i=0;i<(cantPasos);i++){
-      digitalWrite(stepPin,HIGH);
-      delayMicroseconds(2000);
-      digitalWrite(stepPin,LOW);
-      delayMicroseconds(2000);
+    digitalWrite(stepPin,HIGH);
+    delayMicroseconds(2000);
+    digitalWrite(stepPin,LOW);
+    delayMicroseconds(2000);
+  }
+  if(digitalRead(dirPin)==HIGH) digitalWrite(dirPin,LOW);
+  else digitalWrite(dirPin,LOW);
+  for(int i=0;i<(cantPasos);i++){
+    digitalWrite(stepPin,HIGH);
+    delayMicroseconds(2000);
+    digitalWrite(stepPin,LOW);
+    delayMicroseconds(2000);
   }
 }
 void disparo(){
